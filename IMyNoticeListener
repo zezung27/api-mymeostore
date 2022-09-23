@@ -1,0 +1,5 @@
+package com.matcos.app2.core.notify;
+
+public interface IMyNoticeListener {
+    void setValue (String packageName) ;
+}
