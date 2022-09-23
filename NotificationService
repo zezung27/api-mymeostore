@@ -1,0 +1,36 @@
+package com.matcos.app2.core.notify;
+
+import android.app.Notification;
+import android.content.Context;
+import android.service.notification.NotificationListenerService;
+import android.service.notification.StatusBarNotification;
+import android.util.Log;
+
+public class NotificationService extends NotificationListenerService {
+    private String TAG = this .getClass().getSimpleName() ;
+    Context context ;
+    static IMyNoticeListener myListener ;
+    @Override
+    public void onCreate () {
+        super.onCreate() ;
+        context = getApplicationContext() ;
+    }
+    @Override
+    public void onNotificationPosted (StatusBarNotification sbn) {
+        Log. i ( TAG , "********** onNotificationPosted" + sbn ) ;
+        Log. i ( TAG , "ID :" + sbn.getId() + " \t " + sbn.getNotification(). tickerText + " \t " + sbn.getPackageName()) ;
+        myListener.setValue( "Post: " + sbn.getPackageName());
+        String title = sbn.getNotification().extras.getString(Notification.EXTRA_TITLE);
+        String text = sbn.getNotification().extras.getString(Notification.EXTRA_INFO_TEXT);
+        Log. i ( TAG , "********** onNotificationPosted" + title+"---"+text ) ;
+    }
+    @Override
+    public void onNotificationRemoved (StatusBarNotification sbn) {
+        Log. i ( TAG , "********** onNotificationRemoved" ) ;
+        Log. i ( TAG , "ID :" + sbn.getId() + " \t " + sbn.getNotification(). tickerText + " \t " + sbn.getPackageName()) ;
+        myListener.setValue( "Remove: " + sbn.getPackageName()) ;
+    }
+    public void setListener (IMyNoticeListener myListener) {
+        NotificationService.myListener = myListener ;
+    }
+}
