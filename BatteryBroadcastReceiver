@@ -1,0 +1,18 @@
+package com.matcos.app2.core.broadcast;
+
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.os.BatteryManager;
+import android.util.Log;
+import android.widget.Toast;
+
+public class BatteryBroadcastReceiver extends BroadcastReceiver {
+    String TAG = "BatteryBroadcastReceiver";
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        Log.d(TAG, "onReceive: " + intent);
+        int level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+        Toast.makeText(context, level + "%" , Toast.LENGTH_SHORT).show();
+    }
+}
