@@ -1,0 +1,97 @@
+package com.matcos.app2.core.notify;
+
+import android.app.PendingIntent;
+import android.app.RemoteInput;
+import android.os.Bundle;
+import android.os.Parcel;
+import android.os.Parcelable;
+import android.text.TextUtils;
+
+public class ActionParsable
+        implements Parcelable {
+    public static final Parcelable.Creator<ActionParsable> CREATOR = new Parcelable.Creator<ActionParsable>(){
+
+        public ActionParsable createFromParcel(Parcel parcel) {
+            return new ActionParsable(parcel);
+        }
+
+        public ActionParsable[] newArray(int n) {
+            return new ActionParsable[n];
+        }
+    };
+    public int actionIcon;
+    public boolean allowGeneratedReplies;
+    public int allowGeneratedRepliesInt;
+    public Bundle bundle;
+    public CharSequence charSequence;
+    public boolean isContextual;
+    public int isContextualInt;
+    public PendingIntent pendingIntent;
+    public RemoteInput[] remoteInputs;
+    public int semanticAction;
+
+    protected ActionParsable(Parcel parcel) {
+        this.charSequence = (CharSequence)TextUtils.CHAR_SEQUENCE_CREATOR.createFromParcel(parcel);
+        int n = parcel.readInt();
+        int n2 = 1;
+        if (n == n2) {
+            this.pendingIntent = (PendingIntent)PendingIntent.CREATOR.createFromParcel(parcel);
+        }
+        this.bundle = parcel.readBundle(Bundle.class.getClassLoader());
+        this.remoteInputs = (RemoteInput[])parcel.createTypedArray(RemoteInput.CREATOR);
+        int n3 = parcel.readInt() == n2 ? n2 : 0;
+        this.allowGeneratedReplies = n3 != 0;
+        allowGeneratedRepliesInt = n3;
+        this.semanticAction = parcel.readInt();
+        if (parcel.readInt() != n2) {
+            n2 = 0;
+        }
+        this.isContextual = n2 == 1;
+        isContextualInt = n2;
+        this.actionIcon = parcel.readInt();
+    }
+
+    public ActionParsable(CharSequence charSequence, PendingIntent pendingIntent, Bundle bundle, RemoteInput[] arrremoteInput, boolean bl, int n, boolean bl2, int n2) {
+        this.charSequence = charSequence;
+        this.pendingIntent = pendingIntent;
+        if (bundle == null) {
+            bundle = new Bundle();
+        }
+        this.bundle = bundle;
+        this.remoteInputs = arrremoteInput;
+        this.allowGeneratedReplies = bl;
+        this.semanticAction = n;
+        this.isContextual = bl2;
+        this.actionIcon = n2;
+    }
+
+    public ActionParsable clone() {
+        CharSequence charSequence = this.charSequence;
+        PendingIntent pendingIntent = this.pendingIntent;
+        Bundle bundle = this.bundle == null ? new Bundle() : new Bundle(this.bundle);
+        ActionParsable actionParsable = new ActionParsable(charSequence, pendingIntent, bundle, this.remoteInputs, this.allowGeneratedReplies, this.semanticAction, this.isContextual, this.actionIcon);
+        return actionParsable;
+    }
+
+    public int describeContents() {
+        return 0;
+    }
+
+    public void writeToParcel(Parcel parcel, int n) {
+        TextUtils.writeToParcel((CharSequence)this.charSequence, (Parcel)parcel, (int)n);
+        if (this.pendingIntent != null) {
+            parcel.writeInt(1);
+            this.pendingIntent.writeToParcel(parcel, n);
+        } else {
+            parcel.writeInt(0);
+        }
+        parcel.writeBundle(this.bundle);
+        parcel.writeTypedArray((Parcelable[])this.remoteInputs, n);
+        parcel.writeInt(allowGeneratedRepliesInt);
+        parcel.writeInt(this.semanticAction);
+        parcel.writeInt(isContextualInt);
+        parcel.writeInt(this.actionIcon);
+    }
+}
+
+
