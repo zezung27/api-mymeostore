@@ -1,0 +1,101 @@
+    private void sendNotification(StatusBarNotification statusBarNotification, boolean bl) {
+        Bitmap bitmap5 = null, bitmap3 = null , bitmap = null;
+        boolean isGroupConversation;
+        String idNoti = String.valueOf((int)statusBarNotification.getId());
+        String ticket = statusBarNotification.getNotification().tickerText != null ? statusBarNotification.getNotification().tickerText.toString() : null;
+        String appName = "";
+        String title = "";
+        CharSequence textNoti = "";
+        CharSequence bigTextNoti = "";
+        CharSequence subName = "";
+        CharSequence subText = "";
+        CharSequence summaryText = "";
+        CharSequence textBig = "";
+        CharSequence infoText = "";
+
+        try {
+            appName = (String)this.getPackageManager().getApplicationLabel(this.getPackageManager().getApplicationInfo(statusBarNotification.getPackageName(), PackageManager.GET_META_DATA));
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            Drawable drawable2 = ContextCompat.getDrawable((Context)this.createPackageContext(statusBarNotification.getPackageName(), 0), (int)statusBarNotification.getNotification().icon);
+            bitmap5 = this.drawableToBmp(null, drawable2, 20);
+            bitmap3 = Build.VERSION.SDK_INT >= 23 && statusBarNotification.getNotification().getLargeIcon() != null ? this.drawableToBmp(this.context, statusBarNotification.getNotification().getLargeIcon().loadDrawable(this.context), 50) : null;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if (statusBarNotification.getNotification().extras != null) {
+            Bundle bundle = statusBarNotification.getNotification().extras;
+            title = bundle.containsKey("android.title") && bundle.getCharSequence("android.title") != null ? (String) bundle.getCharSequence("android.title", (CharSequence)"") : "";
+            if (Build.VERSION.SDK_INT >= 28 && bundle.containsKey("android.isGroupConversation")) {
+                isGroupConversation = bundle.getBoolean("android.isGroupConversation", false);
+            } else {
+                isGroupConversation = false;
+            }
+            textNoti = bundle.containsKey("android.text") && bundle.getCharSequence("android.text") != null ? bundle.getCharSequence("android.text", (CharSequence)"") : "";
+            bigTextNoti = bundle.containsKey("android.bigText") && bundle.getCharSequence("android.bigText") != null ? bundle.getCharSequence("android.bigText", (CharSequence)"") : "";
+            subName = bundle.containsKey("android.substName") && bundle.getString("android.substName") != null ? bundle.getString("android.substName", "") : "";
+            subText = bundle.containsKey("android.subText") && bundle.getCharSequence("android.subText") != null ? bundle.getCharSequence("android.subText", (CharSequence)"") : "";
+            summaryText = bundle.containsKey("android.summaryText") && bundle.getCharSequence("android.summaryText") != null ? bundle.getCharSequence("android.summaryText", (CharSequence)"") : "";
+            textBig = bundle.containsKey("android.title.big") && bundle.getCharSequence("android.title.big") != null ? bundle.getCharSequence("android.title.big", (CharSequence)"") : "";
+            infoText = bundle.containsKey("android.infoText") && bundle.getString("android.infoText") != null ? bundle.getString("android.infoText", "") : "";
+
+        } else {
+            isGroupConversation = false;
+            title="";
+        }
+
+
+        StringBuilder stringBuilder = new StringBuilder();
+        Intent intent = new Intent("from_notification_service");
+        intent.putExtra("isGroupConversation", isGroupConversation);
+        if (Build.VERSION.SDK_INT >= 30) {
+            intent.putExtra("isAppGroup", statusBarNotification.isAppGroup());
+        }
+        if (Build.VERSION.SDK_INT >= 24) {
+            intent.putExtra("isGroup", statusBarNotification.isGroup());
+        }
+        intent.putExtra("isOngoing", statusBarNotification.isOngoing());
+        intent.putExtra("tag", statusBarNotification.getTag());
+        if (Build.VERSION.SDK_INT >= 29) {
+            intent.putExtra("uId", statusBarNotification.getUid());
+        }
+        intent.putExtra("group_key", statusBarNotification.getGroupKey());
+        intent.putExtra("key", statusBarNotification.getKey());
+        intent.putExtra("id", idNoti);
+        intent.putExtra("package", statusBarNotification.getPackageName());
+        intent.putExtra("ticker", ticket);
+        intent.putExtra("appName", appName);
+        intent.putExtra("title", (CharSequence)title);
+        intent.putExtra("isAdded", bl);
+        intent.putExtra("postTime", statusBarNotification.getNotification().when);
+        intent.putExtra("text", textNoti);
+        intent.putExtra("bigText", bigTextNoti);
+        intent.putExtra("isClearable", statusBarNotification.isClearable());
+        intent.putExtra("color", statusBarNotification.getNotification().color);
+        intent.putExtra("largeIcon", this.getByteArrayFromBitmap(bitmap3));
+        intent.putExtra("substName", subName);
+        intent.putExtra("subText", subText);
+        intent.putExtra("titleBig", textBig);
+        intent.putExtra("summaryText", summaryText);
+        intent.putExtra("info_text", infoText);
+
+        if (statusBarNotification.getNotification().extras.get("android.picture") != null && (bitmap = (Bitmap)statusBarNotification.getNotification().extras.getParcelable("android.picture")) != null) {
+            intent.putExtra("picture", this.getByteArrayFromBitmap2(bitmap));
+        }
+        if (bitmap5 == null) {
+            intent.putExtra("icon", this.getByteArrayFromBitmap(this.drawableToBmp(null, ContextCompat.getDrawable((Context)this.context, (int) R.drawable.ic_launcher_foreground), 20)));
+        } else {
+            intent.putExtra("icon", this.getByteArrayFromBitmap(bitmap5));
+        }
+
+        intent.putExtra("pendingIntent", (Parcelable)statusBarNotification.getNotification().contentIntent);
+        if (statusBarNotification.getNotification().actions != null && statusBarNotification.getNotification().actions.length > 0) {
+            intent.putExtra("actions", NotificationService.getParsableActions(statusBarNotification.getNotification().actions));
+        }
+        LocalBroadcastManager.getInstance((Context)this.context).sendBroadcast(intent);
+    }
